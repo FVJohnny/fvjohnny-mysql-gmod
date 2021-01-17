@@ -71,7 +71,7 @@ FVJOHNNY_MYSQL.CFG.Language = {
     ["db_delete_where_equals_no_params"] = "Se ha intentado llamar a FVJOHNNY_MYSQL:DeleteWhereEquals con where_data = {}",
 
 
-    ["db_table_missing_config"] = "Se ha intentado crear una tabla no configurada en config.lua:  TABLE ALIAS: %table_alias%",
+    ["db_table_missing_config"] = "ALIAS DE TABLA NO EXISTENTE. TABLE ALIAS: %table_alias%",
     ["db_create_table"] = "Vamos a intentar CREAR una tabla nueva. \nTABLE ALIAS: %table_alias% \nTABLE: %table_name%",
     ["db_delete_table"] = "Vamos a intentar BORRAR la tabla tabla. \nTABLE ALIAS: %table_alias% \nTABLE: %table_name%",
 

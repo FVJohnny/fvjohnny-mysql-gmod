@@ -35,5 +35,3 @@ end
 
 hook.Add("Initialize", "FVJOHNNY_MYSQL:ConnectDBS", FVJOHNNY_MYSQL.ConnectDBS)
 hook.Add("Initialize", "FVJOHNNY_MYSQL:CreateTables", FVJOHNNY_MYSQL.CreateTables)
-
-FVJOHNNY_MYSQL.CreateTables()
