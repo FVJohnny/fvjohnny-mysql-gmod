@@ -26,7 +26,9 @@ function FVJOHNNY_MYSQL:Log(messageCode, messageArgs)
 
     local text = self:Language(messageCode, messageArgs)
 
+    print("\n\n")
     print("[FVJOHNNY_MYSQL] " .. text)
+    print("\n\n")
 end
 
 function FVJOHNNY_MYSQL:LogDebug(messageCode, messageArgs)
@@ -38,12 +40,14 @@ end
 function FVJOHNNY_MYSQL:LogError(messageCode, messageArgs)
     local text = self:Language(messageCode, messageArgs)
 
+    print("\n\n")
     print("[FVJOHNNY_MYSQL] ERROR ERROR ERROR ERROR ERROR ERROR.")
-    print("[FVJOHNNY_MYSQL] " .. text)
+    ErrorNoHalt("[FVJOHNNY_MYSQL] " .. text)
     local trace = debug.Trace()
     if trace then
         print("[FVJOHNNY_MYSQL]  Call Stack:" .. debug.Trace())
     end
+    print("\n\n")
 end
 
 function FVJOHNNY_MYSQL:Language(messageCode, messageArgs)

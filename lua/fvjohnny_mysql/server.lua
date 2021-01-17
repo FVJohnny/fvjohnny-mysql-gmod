@@ -28,12 +28,12 @@ function FVJOHNNY_MYSQL:ConnectDBS()
 end
 
 function FVJOHNNY_MYSQL:CreateTables()
-    for DB_KEY, DB_TABLES in pairs(FVJOHNNY_MYSQL.CFG.Tables) do
-        for TABLE_KEY, TABLE_DATA in pairs(DB_TABLES) do
-            FVJOHNNY_MYSQL:CreateTable(DB_KEY, TABLE_KEY, function(data, error) end)
-        end
+    for TABLE_ALIAS, TABLE_DATA in pairs(FVJOHNNY_MYSQL.CFG.Tables) do
+        FVJOHNNY_MYSQL:CreateTable(TABLE_ALIAS, function(data, error) end)
     end
 end
 
 hook.Add("Initialize", "FVJOHNNY_MYSQL:ConnectDBS", FVJOHNNY_MYSQL.ConnectDBS)
 hook.Add("Initialize", "FVJOHNNY_MYSQL:CreateTables", FVJOHNNY_MYSQL.CreateTables)
+
+FVJOHNNY_MYSQL.CreateTables()

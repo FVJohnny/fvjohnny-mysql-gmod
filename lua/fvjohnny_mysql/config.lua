@@ -32,14 +32,26 @@ FVJOHNNY_MYSQL.CFG.DBCredentials = {
 }
 
 FVJOHNNY_MYSQL.CFG.Tables = {
-    HOGWARTS = {
-        ["chronos_wands_spells"] = { 
-            {column = "user_steamid", definition = "VARCHAR(32)"},
-            {column = "spell", definition = "VARCHAR(32)"},
-            {column = "learnable", definition = "BOOLEAN"},
-            {column = "", definition = "PRIMARY KEY(user_steamid, spell)"},
+    /*
+    ANOTHER_EXAMPLE = {
+        database = "CHOOSE FROM FVJOHNNY_MYSQL.CFG.DBCredentials"
+        table = "my_mysql_table",
+        columns = { 
+            {name = "id", definition = "INT PRIMARY KEY"},
+            {name = "info", definition = "VARCHAR(32)"},
         }
-    }
+    },
+    */
+    WANDS_SPELLS = {
+        database = "HOGWARTS",
+        table = "chronos_wands_spells",
+        columns = { 
+            {name = "user_steamid", definition = "VARCHAR(32)"},
+            {name = "spell", definition = "VARCHAR(32)"},
+            {name = "learnable", definition = "BOOLEAN"},
+            {name = "", definition = "PRIMARY KEY(user_steamid, spell)"},
+        }
+    },
 }
 
 
@@ -56,9 +68,9 @@ FVJOHNNY_MYSQL.CFG.Language = {
     ["db_transaction_error"] = "Ha habido un error en una transaccion. \nDB: %db_key% \nError: %error%",
     ["db_prepared_query_invalid_type"] = "Se ha intentado almacenar un valor de tipo invalido: %type%",
 
-    ["db_table_missing_config"] = "Se ha intentado crear una tabla no configurada en config.lua: DB: %db_key% TABLE: %table_key%",
-    ["db_table_created"] = "Vamos a intentar CREAR la tabla: %table_key%",
-    ["db_table_deleted"] = "Vamos a intentar BORRAR la tabla tabla: %table_key%",
+    ["db_table_missing_config"] = "Se ha intentado crear una tabla no configurada en config.lua:  TABLE ALIAS: %table_alias%",
+    ["db_create_table"] = "Vamos a intentar CREAR una tabla nueva. \nTABLE ALIAS: %table_alias% \nTABLE: %table_name%",
+    ["db_delete_table"] = "Vamos a intentar BORRAR la tabla tabla. \nTABLE ALIAS: %table_alias% \nTABLE: %table_name%",
 
     // debug mode = true
     ["db_query_init"] = "Se ha inicializado una query. \nDB: %db_key%\nPrepared: %is_prepared%\nQuery: %query%",
