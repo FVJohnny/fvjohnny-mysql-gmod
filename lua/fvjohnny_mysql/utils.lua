@@ -54,7 +54,7 @@ function FVJOHNNY_MYSQL:Language(messageCode, messageArgs)
     messageArgs = messageArgs or {}
 
     for needle,text in pairs(messageArgs) do
-        message = string.Replace(message, "%"..needle.."%", text)
+        message = string.Replace(message, "%"..needle.."%", tostring(text))
     end
 
     return message
