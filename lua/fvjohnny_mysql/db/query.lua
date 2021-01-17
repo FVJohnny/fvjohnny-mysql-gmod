@@ -88,11 +88,32 @@ function FVJOHNNY_MYSQL:Transaction(db_key, query_array, callback)
     transaction:start()
 end
 
-function FVJOHNNY_MYSQL:Insert(db_key, table_key, insert_data, callback)
-    local db = self:LoadDB(db_key)
-    if not db then return false end
+function FVJOHNNY_MYSQL:Insert(table_alias, insert_data, callback)
+    local table_data, db = self:LoadTableData(table_alias)
+    if not (table_data and db) then return false end
 
-    local query_string = string.Replace("INSERT INTO %table_name% (%column_names%) VALUES (%column_values%)", "%table_name%", table_key)
+    // Build the query string
+    local query_string = string.Replace("INSERT INTO %table_name% (%column_names%) VALUES (%column_values%)", "%table_name%", table_data.table)
+    local column_names, column_values = "", ""
+
+    for column,value in pairs(insert_data) do
+        column_names = column_names .. string.Replace("`%column_name%`, ", "%column_name%", column)
+        column_values = column_values .. "?, "
+    end
+    column_names = string.sub( column_names, 1, #column_names - 2)
+    column_values = string.sub( column_values, 1, #column_values - 2)
+    query_string = string.Replace(query_string, "%column_names%", column_names)
+    query_string = string.Replace(query_string, "%column_values%", column_values)
+
+    return self:PreparedQuery(table_data.database, query_string, insert_data, callback)
+end
+
+function FVJOHNNY_MYSQL:Replace(table_alias, insert_data, callback)
+    local table_data, db = self:LoadTableData(table_alias)
+    if not (table_data and db) then return false end
+
+    // Build the query string
+    local query_string = string.Replace("REPLACE INTO %table_name% (%column_names%) VALUES (%column_values%)", "%table_name%", table_data.table)
     local column_names, column_values = "", ""
 
     for column,value in pairs(insert_data) do
@@ -105,34 +126,18 @@ function FVJOHNNY_MYSQL:Insert(db_key, table_key, insert_data, callback)
     query_string = string.Replace(query_string, "%column_values%", column_values)
 
 
-    return self:PreparedQuery(db_key, query_string, insert_data, callback)
+    return self:PreparedQuery(table_data.database, query_string, insert_data, callback)
 end
 
-function FVJOHNNY_MYSQL:Replace(db_key, table_key, insert_data, callback)
-    local db = self:LoadDB(db_key)
-    if not db then return false end
+function FVJOHNNY_MYSQL:DeleteWhereEquals(table_alias, where_data, callback)
+    local table_data, db = self:LoadTableData(table_alias)
+    if not (table_data and db) then return false end
+    
+    // We probably wanna avoid disasters in this case...
+    if #table.GetKeys(where_data) == 0 then self:LogError("db_delete_where_equals_no_params") return false end
 
-    local query_string = string.Replace("REPLACE INTO %table_name% (%column_names%) VALUES (%column_values%)", "%table_name%", table_key)
-    local column_names, column_values = "", ""
-
-    for column,value in pairs(insert_data) do
-        column_names = column_names .. string.Replace("`%column_name%`, ", "%column_name%", column)
-        column_values = column_values .. "?, "
-    end
-    column_names = string.sub( column_names, 1, #column_names - 2)
-    column_values = string.sub( column_values, 1, #column_values - 2)
-    query_string = string.Replace(query_string, "%column_names%", column_names)
-    query_string = string.Replace(query_string, "%column_values%", column_values)
-
-
-    return self:PreparedQuery(db_key, query_string, insert_data, callback)
-end
-
-function FVJOHNNY_MYSQL:DeleteWhereEquals(db_key, table_key, where_data, callback)
-    local db = self:LoadDB(db_key)
-    if not db then return false end
-
-    local query_string = string.Replace("DELETE FROM %table_name% WHERE (%where_query%)", "%table_name%", table_key)
+    // Build the query string
+    local query_string = string.Replace("DELETE FROM %table_name% WHERE (%where_query%)", "%table_name%", table_data.table)
     local where_query = ""
 
     for column,value in pairs(where_data) do
@@ -142,15 +147,15 @@ function FVJOHNNY_MYSQL:DeleteWhereEquals(db_key, table_key, where_data, callbac
     where_query = string.sub( where_query, 1, #where_query - 5)
     query_string = string.Replace(query_string, "%where_query%", where_query)
 
-
-    return self:PreparedQuery(db_key, query_string, where_data, callback)
+    return self:PreparedQuery(table_data.database, query_string, where_data, callback)
 end
 
-function FVJOHNNY_MYSQL:SelectWhereEquals(db_key, table_key, select_data, callback)
-    local db = self:LoadDB(db_key)
-    if not db then return false end
+function FVJOHNNY_MYSQL:SelectWhereEquals(table_alias, select_data, callback)
+    local table_data, db = self:LoadTableData(table_alias)
+    if not (table_data and db) then return false end
 
-    local query_string = string.Replace("SELECT * FROM %table_name% WHERE (%select_query%)", "%table_name%", table_key)
+    // Build the query string
+    local query_string = string.Replace("SELECT * FROM %table_name% WHERE (%select_query%)", "%table_name%", table_data.table)
     local select_query = ""
 
     for column,value in pairs(select_data) do
@@ -160,21 +165,20 @@ function FVJOHNNY_MYSQL:SelectWhereEquals(db_key, table_key, select_data, callba
     select_query = string.sub( select_query, 1, #select_query - 5)
     query_string = string.Replace(query_string, "%select_query%", select_query)
 
-
-    return self:PreparedQuery(db_key, query_string, select_data, callback)
+    return self:PreparedQuery(table_data.database, query_string, select_data, callback)
 end
 
 function FVJOHNNY_MYSQL:PrepareQueryValue(query, param_pos, param_value)
     self:LogDebug("db_query_prepared_value", {param_pos=param_pos, param_value=param_value})
 
-    local valueType = type(value)
+    local param_type = type(param_value)
 
-    if valueType == "string" then query:setString(pos, value)
-    elseif valueType == "number" then query:setNumber(pos, value)
-    elseif valueType == "boolean" then query:setBoolean(pos, value)
-    elseif valueType == "nil" then query:setNull(pos, value)
+    if param_type == "string" then query:setString(param_pos, param_value)
+    elseif param_type == "number" then query:setNumber(param_pos, param_value)
+    elseif param_type == "boolean" then query:setBoolean(param_pos, param_value)
+    elseif param_type == "nil" then query:setNull(param_pos, param_value)
     else
-        self:LogError("db_prepared_query_invalid_type", {type=valueType})
+        self:LogError("db_prepared_query_invalid_type", {type=param_type})
         return false
     end
 
